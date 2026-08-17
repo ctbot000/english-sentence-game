@@ -7,19 +7,26 @@ Read `README.md` first for how the game works and the deck-file schema.
 This is the main recurring job: the user sends photos or screenshots of book
 pages, and those become a deck.
 
+Deck files live in the sibling `english-sentence-data` repo, reached here through
+the `data` symlink. Commit them there — adding sentences should not touch this
+repo at all.
+
 1. **One deck per chapter or page range**, not per snapshot. If the user sends
    more pages from a range already covered, append to that deck rather than
    creating a second one.
-2. Write `data/<deck-id>.json` using `data/_template.json`, then add the entry
-   to `data/decks.json`. Both steps are needed — a deck file that is not listed
-   is invisible.
+2. Write `data/books/<book title>/<chapter>.json` using `data/_template.json`,
+   then add the entry to `data/decks.json` with the same subpath. Both steps are
+   needed — a deck file that is not listed is invisible.
 3. Keep the sentences **in book order**, and keep `page` when the page number is
    legible. First-time sessions follow deck order, so order matters.
 4. `id` values must be unique within the deck and stable — progress is stored
    under `<deckId>/<sentenceId>`. Renumbering an existing sentence silently
    resets its level, so append new ones rather than reflowing the numbering.
 5. Validate before saying it is done:
-   `python3 -c "import json;json.load(open('data/<file>.json'))"`
+   `python3 -c "import json;json.load(open('data/<file>.json'))"`, and check it
+   actually reaches the home screen — `./serve.sh` and load the page. A broken
+   symlink or a manifest path that does not match the file on disk both look
+   like "no deck" rather than an error.
 
 ## Transcribing rules
 

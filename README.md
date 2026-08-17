@@ -1,10 +1,22 @@
 # English Sentence Game
 
 A browser game for memorizing English sentences. No build step, no dependencies —
-plain HTML, CSS and ES modules. Sentences live in JSON files under `data/`, so
-adding a new chapter of a book means dropping in one more file.
+plain HTML, CSS and ES modules. The sentences live in a separate repo,
+`english-sentence-data`, so adding a new chapter of a book never touches the
+game's code.
 
 ## Running it
+
+Clone `english-sentence-data` next to this repo — `data/` here is a symlink into
+it:
+
+```
+workspaces/claude/
+├── english-sentence-game/
+│   └── data -> ../english-sentence-data/data
+└── english-sentence-data/
+    └── data/
+```
 
 ```bash
 ./serve.sh
@@ -52,11 +64,17 @@ browser, no account. **Reset all progress** in Settings clears it.
 
 ## Deck files
 
-`data/decks.json` lists the decks in the order they appear on the home screen:
+Everything under `data/` belongs to the `english-sentence-data` repo; the paths
+below are relative to it.
+
+`data/decks.json` lists the decks in the order they appear on the home screen.
+`file` is relative to `data/`, so decks kept in book folders are listed with
+their subpath:
 
 ```json
 {
   "decks": [
+    { "id": "goldilocks-ch1", "file": "books/Goldilocks and the Three Bears/chapter1.json" },
     { "id": "sample", "file": "sample.json" }
   ]
 }
@@ -89,7 +107,9 @@ still work well; Type it out has nothing to prompt from). `note`, `page` and
 `tags` are optional; `id` is generated from the deck id and position if omitted.
 
 A deck file that is missing or malformed is reported on the home screen and
-skipped — it never takes the rest of the game down.
+skipped — it never takes the rest of the game down. If `data/decks.json` itself
+cannot be read, the `english-sentence-data` repo is missing or is not sitting
+next to this one.
 
 ## Layout
 
@@ -104,5 +124,5 @@ js/text.js          tokenising, lenient comparison, word diff
 js/speech.js        text-to-speech
 js/dom.js           small element helper
 js/modes/           one file per drill
-data/               deck manifest and deck files
+data/               symlink → ../english-sentence-data/data
 ```
