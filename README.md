@@ -25,6 +25,14 @@ workspaces/claude/
 Then open <http://localhost:8000>. Pass a port to use a different one:
 `./serve.sh 9000`.
 
+If it reports the port is already in use, an earlier `./serve.sh` is still
+running in another terminal — the game is already up at that address, so just
+open it (or serve on another port).
+
+Before starting, `serve.sh` checks that `data/` resolves and that every deck in
+the manifest is actually on disk, since both failures otherwise show up in the
+game as "no decks" rather than an error.
+
 Opening `index.html` straight from Finder will **not** work — browsers refuse to
 read the deck files over `file://`. The page says as much if you try.
 
