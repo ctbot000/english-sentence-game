@@ -37,8 +37,36 @@ export function speakButton(text, settings, label = '▶ Listen') {
   });
 }
 
-export function maybeSpeak(sentence, settings) {
-  if (settings.speakOnReveal) speech.speak(sentence.en, { rate: settings.rate });
+/**
+ * Read the revealed sentence out and hold the advance buttons closed until it
+ * finishes, so continuing cannot clip the pronunciation. When the setting is off
+ * or the browser has no voice, nothing is disabled and focus lands immediately.
+ *
+ * `onDone` from speech.js is guaranteed to fire, including on error and cancel —
+ * without that the buttons could stay disabled with no way out.
+ */
+export function revealAudio(sentence, settings, { buttons, speakingHint, continueHint }) {
+  const focusFirst = () => buttons.find((b) => !b.disabled)?.focus({ preventScroll: true });
+
+  if (!settings.speakOnReveal || !speech.available()) {
+    focusFirst();
+    return;
+  }
+
+  for (const b of buttons) b.disabled = true;
+  if (speakingHint) speakingHint.hidden = false;
+  if (continueHint) continueHint.hidden = true;
+
+  speech.speak(sentence.en, {
+    rate: settings.rate,
+    onDone: () => {
+      for (const b of buttons) b.disabled = false;
+      if (speakingHint) speakingHint.hidden = true;
+      if (continueHint) continueHint.hidden = false;
+      // A disabled button cannot hold focus, so take it back for the Enter key.
+      focusFirst();
+    },
+  });
 }
 
 /** Coloured banner with the verdict and the full correct sentence. */
@@ -96,15 +124,20 @@ export function settle(host, actionRow, { correct, sentence, settings, detail, f
     },
   });
   armContinue(next);
-  actionRow.replaceChildren(
-    next,
-    el('span', { class: 'muted small' }, el('span', { class: 'kbd', text: 'Enter' }), ' to continue')
+  const continueHint = el(
+    'span',
+    { class: 'muted small' },
+    el('span', { class: 'kbd', text: 'Enter' }),
+    ' to continue'
   );
+  const speakingHint = el('span', { class: 'speaking-hint', hidden: true, text: '🔊 playing…' });
+  actionRow.replaceChildren(next, continueHint, speakingHint);
+
   const panel = el('div', { class: 'stack' }, verdictPanel(correct, sentence, settings));
   if (detail) panel.append(detail);
   actionRow.before(panel);
-  maybeSpeak(sentence, settings);
-  next.focus({ preventScroll: true });
+
+  revealAudio(sentence, settings, { buttons: [next], speakingHint, continueHint });
   return next;
 }
 

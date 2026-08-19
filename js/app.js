@@ -486,9 +486,10 @@ document.addEventListener('keydown', (event) => {
   if (document.querySelector('dialog[open]')) return;
   if (event.key === 'Enter') {
     const next = pendingContinue();
+    // Disabled while the pronunciation plays — swallow Enter rather than advancing.
     if (next) {
       event.preventDefault();
-      next.click();
+      if (!next.disabled) next.click();
       return;
     }
   }

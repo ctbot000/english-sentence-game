@@ -60,6 +60,11 @@ browser has no English voice, the listening drills are hidden automatically.
 - `Backspace` — take back the last chip in Word order
 - `Tab` — move between blanks
 
+While the sentence is being read aloud after an answer, the continue button is
+disabled and `Enter` does nothing, so advancing cannot cut the pronunciation
+short. Turn off **Read the sentence aloud after each answer** in Settings to skip
+the wait entirely.
+
 ## Progress
 
 Each sentence has a level from 0 to 6 in a Leitner-style schedule: a correct

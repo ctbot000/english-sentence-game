@@ -1,7 +1,7 @@
 /** Flashcard mode: recall it in your head, then grade yourself. */
 
 import { el } from '../dom.js';
-import { promptBlock, maybeSpeak, speakButton, armContinue, disarmContinue } from './common.js';
+import { promptBlock, revealAudio, speakButton, armContinue, disarmContinue } from './common.js';
 
 export const flash = {
   id: 'flash',
@@ -58,14 +58,16 @@ export const flash = {
         },
       });
       armContinue(good);
+      const speakingHint = el('span', { class: 'speaking-hint', hidden: true, text: '🔊 playing…' });
       actionRow.replaceChildren(
         good,
         again,
+        speakingHint,
         el('span', { class: 'spacer' }),
         speakButton(sentence.en, settings, '▶ Listen')
       );
-      maybeSpeak(sentence, settings);
-      good.focus({ preventScroll: true });
+      // Grading is advancing too, so hold both buttons until the audio finishes.
+      revealAudio(sentence, settings, { buttons: [good, again], speakingHint });
     }
 
     showBtn.focus({ preventScroll: true });
